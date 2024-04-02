@@ -6,15 +6,15 @@ const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'sunikhil1409.be21@chitkara.edu.in',
-    pass: 'zoxu zsjp kelr sdbn',
+    user: 'thakursunikhil@gmail.com',
+    pass: 'taso qmlq nfkb sfod',
   },
 });
 const sendVerificationEmail =(email, verificationToken) => {
-  const verificationLink = `http://localhost:4000/auth/verify-email?token=${verificationToken}`;
+  const verificationLink = `http://localhost:5000/auth/verify-email?token=${verificationToken}`;
   
   const mailOptions = {
-    from: 'sunikhil1409.be21@gmail.com',
+    from: 'thakursunikhil@gmail.com',
     to: email,
     subject: 'Verify Your Email',
     text: `Click on the following link to verify your email: ${verificationLink}`,
@@ -90,7 +90,7 @@ verifyEmail: async (req, res) => {
     await user.save();
 
     // Redirect to the desired page after successful verification
-    res.redirect('http://localhost:4000/blog');
+    res.redirect('http://localhost:5000/auth/login');
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal Server Error');
