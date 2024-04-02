@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 const sendVerificationEmail =(email, verificationToken) => {
-  const verificationLink = `http://localhost:5000/auth/verify-email?token=${verificationToken}`;
+  const verificationLink = `https://blogwebsite-rja9.onrender.com/auth/verify-email?token=${verificationToken}`;
   
   const mailOptions = {
     from: 'thakursunikhil@gmail.com',
@@ -90,7 +90,7 @@ verifyEmail: async (req, res) => {
     await user.save();
 
     // Redirect to the desired page after successful verification
-    res.redirect('http://localhost:5000/auth/login');
+    res.redirect('/auth/login');
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal Server Error');
