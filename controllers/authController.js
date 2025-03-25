@@ -3,7 +3,6 @@ const User = require('../models/User');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 
-// Configure nodemailer for sending emails
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -15,7 +14,6 @@ const transporter = nodemailer.createTransport({
 // Function to send verification email
 const sendVerificationEmail = (email, verificationToken) => {
   const verificationLink = `https://blogwebsite-rja9.onrender.com/auth/verify-email?token=${verificationToken}`;
-
   const mailOptions = {
     from: 'thakursunikhil@gmail.com',
     to: email,
@@ -81,30 +79,41 @@ const authController = {
     }
   },
 
+
   // Email Verification
-  verifyEmail: async (req, res) => {
-    try {
-      const { token } = req.query;
+verifyEmail: async (req, res) => {
+  try {
+    const { token } = req.query;
+    console.log('Token:', token);  // Log token to check if it's correct
 
-      // Find user by verification token
-      const user = await User.findOne({ verificationToken: token });
+    // 1. Find the user with the token
+    const user = await User.findOne({ verificationToken: token });
 
-      if (!user) {
-        return res.status(400).send('Invalid or expired verification token.');
-      }
-
-      // Mark user as verified
-      user.isVerified = true;
-      user.verificationToken = undefined;
-      await user.save();
-
-      // Redirect user to frontend login page with success message
-      res.redirect('https://blogwebsite-rja9.onrender.com/login?verified=true');
-    } catch (error) {
-      console.error('Email verification error:', error);
-      res.status(500).send('Internal Server Error');
+    // 2. If the user doesn't exist, return an error
+    if (!user) {
+      return res.status(400).send('Invalid or expired verification token.');
     }
-  },
+
+    // 3. If the token is expired (add expiry date when generating the token)
+    if (user.verificationTokenExpiry < Date.now()) {
+      return res.status(400).send('Verification token has expired.');
+    }
+
+    // 4. Update the user's `isVerified` field to true and clear the verification token
+    user.isVerified = true;
+    user.verificationToken = undefined; // Remove token after successful verification
+    user.verificationTokenExpiry = undefined; // Remove expiry field
+    await user.save();
+
+    // 5. Redirect to login page with a query param to show a success message
+    res.redirect('https://blogwebsite-rja9.onrender.com/auth/login?verified=true');
+
+  } catch (error) {
+    console.error('Email verification error:', error);
+    res.status(500).send('Internal Server Error');
+  }
+},
+
 
   // User Login
   login: async (req, res) => {
@@ -135,7 +144,7 @@ const authController = {
   // User Logout
   logout: (req, res) => {
     req.session.destroy(() => {
-      res.redirect('https://blogwebsite-rja9.onrender.com/blog');
+      res.redirect('http://blogwebsite-rja9.onrender.com/blog');
     });
   },
 };
