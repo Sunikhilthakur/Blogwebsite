@@ -243,7 +243,9 @@ deleteAccount: async (req, res) => {
     await User.deleteOne({ _id: user._id });
 
     // Redirect to the home page or any other page you prefer
-    res.redirect('/blog');
+    req.session.destroy(() => {
+      res.redirect('/blog');
+    });
 
   } catch (error) {
     console.error('Error in deleteAccount:', error);
