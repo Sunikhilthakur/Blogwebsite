@@ -1,5 +1,5 @@
 const express = require('express');
-const socketIO = require('socket.io');
+const cors = require('cors'); // Import cors
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const session = require('express-session');
@@ -12,7 +12,6 @@ const multer = require('multer');
 const http = require('http');
 const initSocket = require('./socket');
 
-
 dotenv.config();
 
 const PORT = process.env.PORT || 5000;
@@ -23,8 +22,10 @@ const app = express();
 const server = http.createServer(app);
 
 // Initialize Socket.IO
-const io = socketIO(server);
+const io = require('socket.io')(server);
 initSocket(io);
+
+
 
 // Set up middleware
 app.use(express.urlencoded({ extended: true }));
@@ -33,6 +34,11 @@ app.use(session({
     secret: 'your-secret-key',
     resave: true,
     saveUninitialized: true,
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',  // Secure cookies if in production
+      sameSite: 'None',  // Required for cross-domain cookies
+    },
 }));
 
 // Set up Handlebars as the view engine
@@ -65,7 +71,6 @@ app.use('/blog', blogRoutes);
 app.get('/', (req, res) => {
     res.render('home', { user: req.session.user });
 });
-
 
 // Start the server
 server.listen(PORT, () => {
