@@ -212,7 +212,6 @@ updateUser: async (req, res) => {
 
 deleteAccount: async (req, res) => {
   try {
-    // console.log('Request Body:', req.body);
 
     // Retrieve the user from the database
     const user = await User.findById(req.session.user._id);
@@ -277,7 +276,6 @@ deleteBlog: async (req, res) => {
   try {
     const blogId = req.params.id;
 
-    // Find the blog to be deleted
     const deletedBlog = await Blog.findById(blogId);
 
     // Delete the blog

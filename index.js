@@ -36,10 +36,11 @@ app.use(session({
     saveUninitialized: true,
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',  // Secure cookies if in production
-      sameSite: 'None',  // Required for cross-domain cookies
+      secure: false,  // Allow cookies over HTTP
+      sameSite: 'Lax', // Works better for development
     },
 }));
+
 
 // Set up Handlebars as the view engine
 app.engine('hbs', exphbs({
