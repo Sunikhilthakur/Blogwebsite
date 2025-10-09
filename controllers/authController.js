@@ -10,8 +10,8 @@ const bcrypt = require('bcrypt');
    },
  });
  const sendVerificationEmail =(email, verificationToken) => {
-  //  const verificationLink = `https://blogwebsite-ii3g.onrender.com/auth/verify-email?token=${verificationToken}`;
-     const verificationLink = `http://localhost:5000/auth/verify-email?token=${verificationToken}`;
+   const verificationLink = `https://blogwebsite-ii3g.onrender.com/auth/verify-email?token=${verificationToken}`;
+    //  const verificationLink = `http://localhost:5000/auth/verify-email?token=${verificationToken}`;
 
    const mailOptions = {
      from: 'sunikhil1409.be21@chitkara.edu.in',
