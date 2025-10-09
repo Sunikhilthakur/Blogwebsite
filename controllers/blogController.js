@@ -7,8 +7,8 @@ const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'thakursunikhil@gmail.com',
-    pass: 'taso qmlq nfkb sfod',
+    user: 'sunikhil1409.be21@chitkara.edu.in',
+    pass: 'cxxs ptrs ntsa ivfw',
   },
 });
 
@@ -40,7 +40,7 @@ const blogController = {
       if (blog.status === 'Approved') {
         res.render('single-blog', { singleBlog: blog, user: req.session.user });
       } else {
-        res.redirect('/'); // Redirect or handle as needed for non-approved blogs
+        res.redirect('/'); 
       }
     } catch (error) {
       console.error(error);
@@ -62,7 +62,7 @@ const blogController = {
     try {
       let user = await User.findById(req.session.user._id).populate({
         path: 'blog',
-        match: { status: 'Approved' }, // Filter only approved blogs
+        match: { status: 'Approved' }, 
         populate: {
           path: 'author',
           model: 'User',
@@ -79,7 +79,7 @@ const blogController = {
 addBlog: async (req, res) => {
   const { title, content } = req.body;
   try {
-    const isAdmin = req.session.user.isAdmin; // Assuming you have an 'isAdmin' property in your user model
+    const isAdmin = req.session.user.isAdmin; 
 
     const newBlog = new Blog({
       title,

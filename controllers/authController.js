@@ -5,15 +5,16 @@ const bcrypt = require('bcrypt');
  const transporter = nodemailer.createTransport({
    service: 'gmail',
    auth: {
-     user: 'thakursunikhil@gmail.com',
-     pass: 'taso qmlq nfkb sfod',
+     user: 'sunikhil1409.be21@chitkara.edu.in',
+     pass: 'cxxs ptrs ntsa ivfw',
    },
  });
  const sendVerificationEmail =(email, verificationToken) => {
-   const verificationLink = `https://blogwebsite-ii3g.onrender.com/auth/verify-email?token=${verificationToken}`;
-   
+  //  const verificationLink = `https://blogwebsite-ii3g.onrender.com/auth/verify-email?token=${verificationToken}`;
+     const verificationLink = `http://localhost:5000/auth/verify-email?token=${verificationToken}`;
+
    const mailOptions = {
-     from: 'thakursunikhil@gmail.com',
+     from: 'sunikhil1409.be21@chitkara.edu.in',
      to: email,
      subject: 'Verify Your Email',
      text: `Click on the following link to verify your email: ${verificationLink}`,
