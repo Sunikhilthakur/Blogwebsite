@@ -1,133 +1,97 @@
 const bcrypt = require('bcrypt');
- const User = require('../models/User');
- const crypto = require('crypto');
- const nodemailer = require('nodemailer');
- const transporter = nodemailer.createTransport({
-   service: 'gmail',
-   auth: {
-     user: 'sunikhil1409.be21@chitkara.edu.in',
-     pass: 'cxxs ptrs ntsa ivfw',
-   },
- });
- const sendVerificationEmail =(email, verificationToken) => {
-   const verificationLink = `https://blogwebsite-ii3g.onrender.com/auth/verify-email?token=${verificationToken}`;
-    //  const verificationLink = `http://localhost:5000/auth/verify-email?token=${verificationToken}`;
+const User = require('../models/User');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 
-   const mailOptions = {
-     from: 'sunikhil1409.be21@chitkara.edu.in',
-     to: email,
-     subject: 'Verify Your Email',
-     text: `Click on the following link to verify your email: ${verificationLink}`,
-   };
- 
-   transporter.sendMail(mailOptions, (error, info) => {
-     if (error) {
-       console.error(error);
-     } else {
-       console.log('Email sent: ' + info.response);
-     }
-   });
- },
- 
-  generateVerificationToken =() => {
-   return generateRandomString(32);
- };
- 
- const generateRandomString = (length) => {
-   return crypto.randomBytes(Math.ceil(length / 2)).toString('hex').slice(0, length);
- };
- const authController = {
- 
-  register : async (req, res) => {
-   try {
-     const { username, password, email } = req.body;
- 
-     // Determine if the user should be an admin based on the provided username and email
-     const isAdmin = username.toLowerCase() === 'sunikhil' && email.toLowerCase() === 'sunikhil1409.be21@chitkara.edu.in';
- 
-     // Generate a verification token
-     const verificationToken = generateRandomString(32);
- 
-     // Hash the password
-     const hashedPassword = await bcrypt.hash(password, 10);
- 
-     // Create a new user with username, hashed password, email, and verification token
-     const newUser = new User({
-       username,
-       password: hashedPassword,
-       email,
-       isAdmin,
-       verificationToken,
-     });
- 
-     // Save the new user to the database
-     await newUser.save();
- 
-     // Send the verification email with the user's email
-     sendVerificationEmail(email, verificationToken);
-   
-     // Redirect to a page indicating that the user needs to check their email for verification
-     res.send('check your email to verify email');
-   } catch (error) {
-     console.error(error);
-     res.redirect('/auth/register');
-   }
- },
- verifyEmail: async (req, res) => {
-   const { token } = req.query;
- 
-   try {
-     const user = await User.findOne({ verificationToken: token });
- 
-     if (!user) {
-       // Invalid token
-       return res.status(400).send('Invalid verification token');
-     }
- 
-     // Update user status to indicate email verification
-     user.isVerified = true;
-     user.verificationToken = undefined;
-     await user.save();
- 
-     // Redirect to the desired page after successful verification
-     res.redirect('/auth/login');
-   } catch (error) {
-     console.error(error);
-     res.status(500).send('Internal Server Error');
-   }
- },
-  
-   
-   login: async (req, res) => {
-     try {
-       const { username, password } = req.body;
-   
-       // Find the user by username
-       const user = await User.findOne({ username });
-   
-       // Check if the user exists and if the password is correct
-       if (!user || !(await bcrypt.compare(password, user.password))) {
-         
-         return res.redirect('/auth/register');
-       }
-   
-       // Store user information in the session
-       req.session.user = user;
-   
-       res.redirect('/blog');
-     } catch (error) {
-     
-       res.redirect('/auth/login');
-     }
-   },
-   
- 
-   logout: (req, res) => {
-     // Destroy the session to log out the user
-     req.session.destroy(() => {
-       res.redirect('/blog');
-     });
-   },
- };
- 
- module.exports = authController;
+// ✅ Use environment variables for security
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
+const sendVerificationEmail = (email, verificationToken) => {
+  const verificationLink = `https://blogwebsite-ii3g.onrender.com/auth/verify-email?token=${verificationToken}`;
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: 'Verify Your Email',
+    text: `Click on the following link to verify your email: ${verificationLink}`,
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) console.error('Error sending verification email:', error);
+    else console.log('Verification email sent:', info.response);
+  });
+};
+
+const generateRandomString = (length) => crypto.randomBytes(Math.ceil(length / 2)).toString('hex').slice(0, length);
+
+const authController = {
+  register: async (req, res) => {
+    try {
+      const { username, password, email } = req.body;
+      const isAdmin = username.toLowerCase() === 'sunikhil' && email.toLowerCase() === 'sunikhil1409.be21@chitkara.edu.in';
+      const verificationToken = generateRandomString(32);
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const newUser = new User({
+        username,
+        password: hashedPassword,
+        email,
+        isAdmin,
+        verificationToken,
+      });
+
+      await newUser.save();
+      sendVerificationEmail(email, verificationToken);
+
+      res.send('Check your email to verify your account.');
+    } catch (error) {
+      console.error('Error in register:', error);
+      res.redirect('/auth/register');
+    }
+  },
+
+  verifyEmail: async (req, res) => {
+    const { token } = req.query;
+    try {
+      const user = await User.findOne({ verificationToken: token });
+      if (!user) return res.status(400).send('Invalid verification token');
+
+      user.isVerified = true;
+      user.verificationToken = undefined;
+      await user.save();
+
+      res.redirect('/auth/login');
+    } catch (error) {
+      console.error('Error in verifyEmail:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  },
+
+  login: async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      const user = await User.findOne({ username });
+
+      if (!user || !(await bcrypt.compare(password, user.password))) {
+        return res.redirect('/auth/register');
+      }
+
+      req.session.user = user;
+      res.redirect('/blog');
+    } catch (error) {
+      console.error('Error in login:', error);
+      res.redirect('/auth/login');
+    }
+  },
+
+  logout: (req, res) => {
+    req.session.destroy(() => res.redirect('/blog'));
+  },
+};
+
+module.exports = authController;
