@@ -4,14 +4,11 @@ const Blog = require('../models/Blog');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 
-// ✅ Use environment variables instead of hardcoded credentials
-// Render blocks direct Gmail SMTP sometimes, so use Gmail App Password or a service like SendGrid.
-// Add these in Render → Environment:
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: 'sunikhil1409.be21@chitkara.edu.in',
+    pass: 'sfpt idyw ubtr znvi',
   },
 });
 

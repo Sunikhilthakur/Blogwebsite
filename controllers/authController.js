@@ -3,17 +3,17 @@ const User = require('../models/User');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 
-// ✅ Use environment variables for security
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: 'sunikhil1409.be21@chitkara.edu.in',
+    pass: 'sfpt idyw ubtr znvi',
   },
 });
 
 const sendVerificationEmail = (email, verificationToken) => {
-  const verificationLink = `https://blogwebsite-ii3g.onrender.com/auth/verify-email?token=${verificationToken}`;
+  // const verificationLink = `https://blogwebsite-ii3g.onrender.com/auth/verify-email?token=${verificationToken}`;
+  const verificationLink = `http://localhost:5000/auth/verify-email?token=${verificationToken}`;
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,

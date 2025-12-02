@@ -1,8 +1,6 @@
 
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const bcrypt = require('bcrypt');
-const nodemailer = require('nodemailer');
 
 // const userSchema = new Schema({
 //   username: String,
